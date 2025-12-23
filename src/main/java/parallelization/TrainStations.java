@@ -1,6 +1,7 @@
 package parallelization;
 
 import java.util.Optional;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -79,7 +80,17 @@ public class TrainStations {
             throw new IllegalArgumentException();
         }
 
-         return null;  // TODO
+        if (!station1.isPresent() && !station2.isPresent()) {
+            return Optional.empty();
+        } else if (!station1.isPresent()) {
+            return station2;
+        } else if (!station2.isPresent()) {
+            return station1;
+        } else {
+            double d1 = distanceFunction.compute(passenger, station1.get().getLocation());
+            double d2 = distanceFunction.compute(passenger, station2.get().getLocation());
+            return d1 < d2 ? station1 : station2;
+        }
     }
 
 
@@ -112,7 +123,17 @@ public class TrainStations {
             throw new IllegalArgumentException();
         }
 
-         return null;  // TODO
+        if (start == end) {
+            return Optional.empty();
+        } else {
+            Optional<Station> closest = Optional.empty();
+
+            for (int i = start; i < end; i++) {
+                closest = getClosestStation(passenger,distanceFunction, closest, Optional.of(stations[i]));
+            }
+
+            return closest;  // TODO
+        }
     }
 
 
@@ -141,6 +162,16 @@ public class TrainStations {
                                                                DistanceFunction distanceFunction,
                                                                Station[] stations,
                                                                ExecutorService executorService) {
-         return null;  // TODO
+
+        int n = stations.length;
+
+        Future<Optional<Station>> future1 = executorService.submit(() -> findClosestStationSequential(passenger, distanceFunction, stations, 0, n/2));
+        Future<Optional<Station>> future2 = executorService.submit(()-> findClosestStationSequential(passenger, distanceFunction, stations, n/2, n));
+
+        try {
+            return getClosestStation(passenger, distanceFunction, future1.get(), future2.get());
+        } catch (InterruptedException | ExecutionException e) {
+            return null;
+        }
     }
 }
