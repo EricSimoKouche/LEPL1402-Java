@@ -1,5 +1,7 @@
 package parallelization;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -52,6 +54,7 @@ public class StadiumStatistics {
      */
     static public class AgeHistogram {
          // TODO - Add the private members of your data structure at this point
+        private int counter[] = new int[9];
 
         /**
          * Your constructor. Initially, the number of supporters must be zero for each age category.
@@ -69,7 +72,29 @@ public class StadiumStatistics {
          * requested age category does not exist in the "AgeCategory" enumeration.
          */
         public int getNumberOfSupporters(AgeCategory category) {
-             return -1;  // TODO
+            // TODO
+            switch (category) {
+                case BETWEEN_0_AND_9:
+                    return counter[0];
+                case BETWEEN_10_AND_19:
+                    return counter[1];
+                case BETWEEN_20_AND_29:
+                    return counter[2];
+                case BETWEEN_30_AND_39:
+                    return counter[3];
+                case BETWEEN_40_AND_49:
+                    return counter[4];
+                case BETWEEN_50_AND_59:
+                    return counter[5];
+                case BETWEEN_60_AND_69:
+                    return counter[6];
+                case BETWEEN_70_AND_79:
+                    return counter[7];
+                case ABOVE_80:
+                    return counter[8];
+                default:
+                    throw new IllegalArgumentException("No such catergory");
+            }
         }
 
         /**
@@ -81,6 +106,10 @@ public class StadiumStatistics {
          */
         public void addSupporter(int age) {
              // TODO
+            if (age < 0) throw new IllegalArgumentException("THe age is not valid");
+
+            int index = Math.min(8, age / 10);
+            counter[index]++;
         }
 
         /**
@@ -93,7 +122,12 @@ public class StadiumStatistics {
          */
         static public AgeHistogram combine(AgeHistogram histogram1,
                                            AgeHistogram histogram2) {
-             return null;  // TODO
+
+            AgeHistogram result = new AgeHistogram();
+            for (int i = 0; i <= 8; i++) {
+                result.counter[i] = histogram1.counter[i] + histogram2.counter[i];
+            }
+            return result;
         }
     }
 
@@ -125,7 +159,18 @@ public class StadiumStatistics {
             throw new IllegalArgumentException();
         }
 
-         return null;  // TODO
+        if (startIndex == endIndex) {
+            return new AgeHistogram();
+        }
+        AgeHistogram distribution = new AgeHistogram();
+
+        for (int i = startIndex; i < endIndex; i++) {
+            Supporter supp = supporters[i];
+            if (supp.getNationality().equals(nationality)) {
+                distribution.addSupporter(supp.getAge());
+            }
+        }
+        return distribution;  // TODO
     }
 
     /**
@@ -149,6 +194,13 @@ public class StadiumStatistics {
     public static AgeHistogram computeAgeHistogramParallel(ExecutorService executorService,
                                                            Supporter[] supporters,
                                                            String nationality) {
-         return null;  // TODO
+        Future<AgeHistogram> future1 = executorService.submit(() -> computeAgeHistogramSequential(supporters, nationality, 0, supporters.length/2));
+        Future<AgeHistogram> future2 = executorService.submit(() -> computeAgeHistogramSequential(supporters, nationality, supporters.length/2, supporters.length));
+
+        try {
+            return AgeHistogram.combine(future1.get(), future2.get());
+        } catch (ExecutionException | InterruptedException e) {
+            return null;
+        }
     }
 }
