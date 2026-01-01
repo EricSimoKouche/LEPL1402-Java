@@ -1,6 +1,8 @@
 package algorithms;
 
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * The AstroLink project consists of thousands of satellites orbiting Earth in an ordered chain.
@@ -52,7 +54,17 @@ public class AstroLink implements Iterable<Integer> {
      * @param n > 1 the number of satellites
      */
     public AstroLink(int n) {
-        // TODO
+        successor = new int[n];
+        predecessor = new int[n];
+        for (int i = 0; i < n; i++) {
+            if (i == 0 || i == n-1) {
+                successor[i] = n-1;
+                predecessor[i] = 0;
+                continue;
+            }
+            predecessor[i] = i;
+            successor[i] = i;
+        }
     }
 
 
@@ -64,6 +76,25 @@ public class AstroLink implements Iterable<Integer> {
      */
     public void insertAfter(int a, int b) {
         // TODO
+        if (predecessor[b] != b && successor[b] != b) {
+            throw new IllegalArgumentException( b + " is already in the chain");
+        }
+        if (predecessor[a] == a && successor[a] == a) {
+            throw new IllegalArgumentException("the satellite " + a + " is not in the chain");
+        }
+        if (successor[a] == a) {
+            throw new IllegalArgumentException("You can't insert after the last satellite of the chain");
+        }
+        // 1 - Retrieve the previous successor of the satellite a
+        int prev = successor[a];
+        // 2 - Update the successor of the satellite a
+        successor[a] = b;
+        // 3 - Update the predecessor of the previous successor of the satellite a
+        predecessor[prev] = b;
+        // 4 - Update the predecessor and the successor of the inserted satellite
+        predecessor[b] = a;
+        successor[b] = prev;
+
     }
 
 
@@ -75,6 +106,24 @@ public class AstroLink implements Iterable<Integer> {
      */
     public void insertBefore(int a, int b) {
         // TODO
+        if (predecessor[b] != b && successor[b] != b) {
+            throw new IllegalArgumentException( b + " is already in the chain");
+        }
+        if (predecessor[a] == a && successor[a] == a) {
+            throw new IllegalArgumentException("the satellite " + a + " is not in the chain");
+        }
+        if (predecessor[a] == a) {
+            throw new IllegalArgumentException("You can't insert before the first satellite of the chain");
+        }
+        // 1 - Retrieve the previous predecessor of the satellite a
+        int prev = predecessor[a];
+        // 2 - Update the predecessor of the satellite a
+        predecessor[a] = b;
+        // 3 - Update the successor of the previous predecessor of the satellite a
+        successor[prev] = b;
+        // 4 - Update both successor and predecessor of the inserted satellite
+        predecessor[b] = prev;
+        successor[b] = a;
     }
 
 
@@ -87,7 +136,24 @@ public class AstroLink implements Iterable<Integer> {
     @Override
     public Iterator<Integer> iterator() {
         // TODO
-         return null;
-    }
+         return new Iterator<Integer>() {
+             int i = 0;
+             int prev = -1;
+             @Override
+             public boolean hasNext() {
+                 return i != prev;
+             }
 
+             @Override
+             public Integer next() {
+                 if (i == prev) {
+                     throw new NoSuchElementException();
+                 }
+                 int res = i;
+                 prev = i;
+                 i = successor[i];
+                 return res;
+             }
+         };
+    }
 }
