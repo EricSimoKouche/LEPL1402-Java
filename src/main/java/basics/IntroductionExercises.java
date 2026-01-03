@@ -10,20 +10,21 @@ public class IntroductionExercises {
      * Function that bound variable to value
      */
     public static void attribute(int value){
+        variable = value;
     }
 
     /*
      * Function that return the addition of the two parameters
      */
     public static int add(int a, int b){
-         return 0;
+         return a+b;
     }
 
     /*
      * return true is a and b are equal
      */
     public static boolean equalsIntegers(int a, int b){
-         return false;
+         return a==b;
     }
 
     /*
@@ -31,7 +32,7 @@ public class IntroductionExercises {
      * You must use a ternary operation
      */
     public static int max(int a, int b){
-         return 0;
+         return a > b ? a : b;
     }
 
     /*
@@ -40,7 +41,11 @@ public class IntroductionExercises {
      * If two value are equals, return -1.
      */
     public static int middleValue(int a, int b, int c){
-         return 0;
+
+        if ((a > b && b > c) || (c > b && b > a)) return b;
+        else if ((b > c && c > a) || (a > c && c > b)) return c;
+        else if ((c > a && a > b) || (b > a && a > c)) return a;
+        else return -1;
     }
     /*
      * This function must return :
@@ -48,11 +53,19 @@ public class IntroductionExercises {
      * "Good evening, sir!" if str is "Evening"
      * "Hello, sir!" otherwise
      * Use a switch case statement
-     * Your implementation must be case sensitive
+     * Your implementation must be case-sensitive
      * And you should not use if/else!
      */
     public static String greetings(String str){
-         return "";
+
+        switch (str) {
+            case "Morning":
+                return "Good morning, sir!";
+            case "Evening":
+                return "Good evening, sir!";
+            default:
+                return "Hello, sir!";
+        }
     }
 
     /*
@@ -62,21 +75,35 @@ public class IntroductionExercises {
      * The last element is the middle element of a
      */
     public static int[] lastFirstMiddle(int[] a){
-         return null;
+
+        int n = a.length;
+        return new int[] {a[n-1], a[0], a[n/2]};
     }
 
     /*
      * This function must return the sum of the elements of array using a for loop
      */
     public static int sum(int[] array){
-         return 0;
+         int sum = 0;
+
+         for (int x : array) {
+             sum += x;
+         }
+
+         return sum;
     }
 
     /*
      * return the maximum element of array using a while loop
      */
     public static int maxArray(int[] array){
-         return 0;
+         int max = array[0];
+         int i = 1;
+         while (i < array.length) {
+             if (array[i] > max) max = array[i];
+             i++;
+         }
+         return max;
     }
 
 
@@ -105,6 +132,14 @@ public class IntroductionExercises {
      * because 3.1 can not be converted to an integer
      * */
     public static void main(String... args){
+        squares = new int[args.length];
+        for (int i = 0; i < args.length; i++) {
+            try {
+                int val = Integer.parseInt(args[i]);
+                squares[i] = val * val;
+            } catch (Exception e) {
+                squares[i] = 0;
+            }
+        }
     }
-
 }
