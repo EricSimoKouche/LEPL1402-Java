@@ -1,6 +1,8 @@
 package exam;
 
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 /**
  * You are the organizer of a bicycle race in the Ardennes forest.
@@ -78,7 +80,18 @@ public class BicycleRace {
      * HINT 2: In Java, "Math.sqrt(x)" returns the square root of "x".
      */
     public static float computeLength(Checkpoint[] path) {
-         return -1;  // TODO
+
+        if (path.length <= 1) return 0.0F;
+
+        float distance = 0.0F;
+        for (int i = 0; i < path.length - 1; i++) {
+            float x1 = path[i].getX();
+            float y1 = path[i].getY();
+            float x2 = path[i+1].getX();
+            float y2 = path[i+1].getY();
+            distance += (float) Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+        }
+        return distance;
     }
 
     /**
@@ -87,7 +100,12 @@ public class BicycleRace {
      * is zero or one checkpoint in the path, the returned duration must be zero, by convention.
      */
     public static int computeDuration(Checkpoint[] path) {
-         return -1;  // TODO
+
+        if (path.length <= 1) {
+            return 0;
+        }
+        int n = path.length;
+        return path[n-1].getTime() - path[0].getTime();  // TODO
     }
 
     /**
@@ -100,7 +118,10 @@ public class BicycleRace {
      * convert "int" to "float" during the conversion of the time units to avoid round-off errors.
      */
     public static float computeAverageSpeed(Checkpoint[] path) {
-         return -1;  // TODO
+        float distance = computeLength(path);
+        float duration = (float) computeDuration(path);
+
+        return duration == 0.0F ? duration : distance / (duration / 3600);  // TODO
     }
 
     /**
@@ -126,7 +147,10 @@ public class BicycleRace {
         if (speeds.length != cyclists.size()) {
             throw new IllegalArgumentException();
         }
-        // TODO
+
+        for (int i = startIndex; i < endIndex; i++) {
+            speeds[i] = computeAverageSpeed(cyclists.getPath(i));
+        }
     }
 
     /**
@@ -150,7 +174,15 @@ public class BicycleRace {
         float[] result = new float[cyclists.size()];
 
         // TODO
+        Future future1 = threadPool.submit(() -> computeAverageSpeedSequential(result, cyclists, 0, result.length/2));
+        Future future2 = threadPool.submit(() -> computeAverageSpeedSequential(result, cyclists, result.length/2, result.length));
 
+        try {
+            future1.get();
+            future2.get();
+        } catch (ExecutionException | InterruptedException e) {
+            return null;
+        }
         return result;
     }
 }
