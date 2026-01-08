@@ -101,6 +101,7 @@ public class RobotActionFactory {
         @Override
         public void apply(Robot robot) {
             // TODO Implement the body of this method
+            robot.moveForward();
         }
     }
 
@@ -112,6 +113,7 @@ public class RobotActionFactory {
         @Override
         public void apply(Robot robot) {
             // TODO Implement the body of this method
+            robot.turnLeft();
         }
     }
 
@@ -123,6 +125,7 @@ public class RobotActionFactory {
         @Override
         public void apply(Robot robot) {
             // TODO Implement the body of this method
+            robot.turnRight();
         }
     }
 
@@ -145,6 +148,9 @@ public class RobotActionFactory {
         @Override
         public void apply(Robot robot) {
             // TODO Implement the body of this method
+            for (Action action : actions) {
+                action.apply(robot);
+            }
         }
     }
 
@@ -171,6 +177,9 @@ public class RobotActionFactory {
         @Override
         public void apply(Robot robot) {
             // TODO Implement the body of this method
+            for (int i = 0; i < times; i++) {
+                action.apply(robot);
+            }
         }
     }
 
@@ -193,7 +202,44 @@ public class RobotActionFactory {
         SequenceOfActions sequence = new SequenceOfActions();
 
         // TODO Implement the body of this method by filling the "sequence" object
+        int i = 0;
+        while (i < commands.length) {
+            if (commands[i].equals("FORWARD")) {
+                sequence.add(new MoveForwardAction());
+                i++;
+            } else if (commands[i].equals("LEFT")) {
+                sequence.add(new TurnLeftAction());
+                i++;
+            } else if (commands[i].equals("RIGHT")) {
+                sequence.add(new TurnRightAction());
+                i++;
+            } else if (commands[i].startsWith("REPEAT")) {
+                String[] command = commands[i].split(" ");
+                int times = Integer.parseInt(command[1]);
 
+                int depth = 1;
+                int j = i + 1;
+
+                while (depth > 0 && j < commands.length) {
+                    if (commands[j].startsWith("REPEAT")) {
+                        depth++;
+                    } else if (commands[j].equals("END REPEAT")) {
+                        depth--;
+                    }
+                    j++;
+                }
+
+                if (depth == 0) {
+                    Action action = parse(Arrays.copyOfRange(commands, i+1, j-1));
+                    sequence.add(new RepeatAction(times, action));
+                    i = j;
+                } else {
+                    throw new IllegalArgumentException("Missing END REPEAT command");
+                }
+            } else {
+                throw new IllegalArgumentException("Unknown Command " + commands[i]);
+            }
+        }
         return sequence;
     }
 

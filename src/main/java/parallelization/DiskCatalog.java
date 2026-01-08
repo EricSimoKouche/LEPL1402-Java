@@ -1,8 +1,6 @@
 package parallelization;
 
-import java.util.Iterator;
-import java.util.Optional;
-import java.util.Stack;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -97,7 +95,20 @@ public class DiskCatalog {
 
         public Integer call() {
             // TODO
-             return -1;
+             int count = 0;
+             while (iterator.hasNext()) {
+                 Disk disk = iterator.next();
+                 if ( (!bandName.isPresent() || bandName.get().equals(disk.getBandName())) &&
+                     (!diskTitle.isPresent() || diskTitle.get().equals(disk.getDiskTitle())) &&
+                         (!year.isPresent() || year.get() == disk.getYear())) {
+                     count++;
+                 }
+
+                 for (int i = 0; i < skip && iterator.hasNext(); i++) {
+                     iterator.next();
+                 }
+             }
+             return count;
         }
     }
 
@@ -128,6 +139,20 @@ public class DiskCatalog {
                                          ExecutorService threadPool,
                                          int countCallables) throws InterruptedException, ExecutionException {
         // TODO
-         return -1;
+        if (countCallables <= 0) {
+            throw new IllegalArgumentException("Insufficient number of callables");
+        }
+
+        List<Future<Integer>> pendingComputations = new ArrayList<>();
+
+        for (int i = 0; i < countCallables; i++) {
+            pendingComputations.add(threadPool.submit(new CountMatchingDisksCallable(disks.iterator(), bandName, diskTitle, year, countCallables - 1)));
+        }
+
+        int result = 0;
+        for (Future<Integer> computation : pendingComputations) {
+            result += computation.get();
+        }
+        return result;
     }
 }

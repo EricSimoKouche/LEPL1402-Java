@@ -2,6 +2,7 @@ package oop;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 
 
 /*
@@ -64,7 +65,7 @@ public class RunLengthEncoding {
      */
     public RunLengthEncoding() {
         // TODO
-         repeatingValues = null;
+         repeatingValues = new ArrayList<>();
     }
 
     /**
@@ -75,7 +76,20 @@ public class RunLengthEncoding {
      */
     public RunLengthEncoding(String content) {
         // TODO
-         repeatingValues = null;
+        repeatingValues = new ArrayList<>();
+        int count = 1;
+        for (int i = 1; i < content.length(); i++) {
+            if (content.charAt(i) != content.charAt(i-1)) {
+                RepeatingValue temp = new RepeatingValue(content.charAt(i-1), count);
+                repeatingValues.add(temp);
+                count = 1;
+            } else {
+                count++;
+            }
+        }
+        if (count != 0) {
+            repeatingValues.add(new RepeatingValue(content.charAt(content.length() -  1), count));
+        }
     }
 
     /**
@@ -85,6 +99,18 @@ public class RunLengthEncoding {
      */
     public void append(char value) {
         // TODO
+        if (repeatingValues.isEmpty()) {
+            repeatingValues.add(new RepeatingValue(value, 1));
+            return;
+        }
+
+        RepeatingValue last = repeatingValues.get(repeatingValues.size() - 1);
+        if (last.getValue() == value) {
+            repeatingValues.remove(repeatingValues.size() - 1);
+            repeatingValues.add(new RepeatingValue(last.getValue(), last.getNumRepetitions() +1));
+        } else {
+            repeatingValues.add(new RepeatingValue(value, 1));
+        }
     }
 
     /**
@@ -104,7 +130,15 @@ public class RunLengthEncoding {
      */
     public String getUncompressed() {
         // TODO
-         return null;
+        StringBuilder str = new StringBuilder();
+        for (RepeatingValue repeatingValue : repeatingValues) {
+            char c = repeatingValue.getValue();
+            int repetitions = repeatingValue.getNumRepetitions();
+            for (int i = 0; i < repetitions; i++) {
+                str.append(c);
+            }
+        }
+        return str.toString();
     }
 
     // Run this main method to see an example:
