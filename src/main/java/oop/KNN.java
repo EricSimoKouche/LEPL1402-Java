@@ -133,7 +133,15 @@ public class KNN {
      */
     public static boolean predictSuccess(Student [] students, double[] grades, int k) {
         // TODO
-         return false;
+        Arrays.sort(students, (s1, s2) ->  Double.compare(euclideanDistance(s1.grades, grades),euclideanDistance(s2.grades, grades)));
+
+        int count = 0;
+        for (int i = 0; i < k; i++) {
+            if (students[i].success) {
+                count++;
+            }
+        }
+        return count > k / 2;
     }
 
     public static double euclideanDistance(double[] a, double[] b) {
