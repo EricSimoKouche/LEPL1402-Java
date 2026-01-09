@@ -1,5 +1,8 @@
 package basics;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class StringUtils {
 
 
@@ -14,7 +17,24 @@ public class StringUtils {
      *          return an array of size 1 with the string at element 0
      */
     public static String [] split(String str, char delimiter){
-         return null;
+
+        List<String> res = new ArrayList<>();
+        StringBuilder s = new StringBuilder();
+
+        for (int i = 0; i < str.length(); i++) {
+            char c = str.charAt(i);
+
+            if (c != delimiter) {
+                s.append(c);
+            } else {
+                res.add(s.toString());
+                s = new StringBuilder();
+            }
+        }
+
+        res.add(s.toString());
+        return res.toArray(new String[0]);
+
     }
 
 
@@ -28,7 +48,26 @@ public class StringUtils {
      *          in str
      */
     public static int indexOf(String str, String sub){
-         return 0;
+
+        if (str.length() < sub.length()) return -1;
+
+        int j = 0; // this is the index that will go through the sub
+        for (int i = 0; i < str.length(); i++) {
+
+            if (str.charAt(i) == sub.charAt(j)) {
+                while ( i + j < str.length() && j < sub.length() ) {
+                    if (str.charAt(i+j) != sub.charAt(j)) {
+                        j = 0;
+                        break;
+                    }
+                    j++;
+                }
+                if (j == sub.length()) {
+                    return i;
+                }
+            }
+        }
+        return -1;
     }
 
 
@@ -40,7 +79,12 @@ public class StringUtils {
      *          character put to lower case.
      */
     public static String toLowerCase(String str){
-         return null;
+
+        StringBuilder lower = new StringBuilder();
+        for (int i = 0; i < str.length(); i++) {
+            lower.append(Character.toLowerCase(str.charAt(i)));
+        }
+        return lower.toString();
     }
 
 
@@ -55,8 +99,14 @@ public class StringUtils {
      * @return true if str is a palyndrome, false otherwise
      */
     public static boolean palindrome(String str){
-         return false;
+
+        int right = str.length() - 1;
+        for (int i = 0; i <= right; i++) {
+            if (str.charAt(i) != str.charAt(right)) {
+                return false;
+            }
+            right--;
+        }
+        return true;
     }
-
-
 }
