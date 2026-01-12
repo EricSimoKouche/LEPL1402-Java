@@ -44,7 +44,8 @@ public class RecursiveStack<E>  implements Iterable<E> {
      * @return the new stack
      */
     public RecursiveStack<E> add(E e) {
-		 return null;
+
+        return new RecursiveStack<>(e, this);
         // TODO
     }
 
@@ -56,7 +57,10 @@ public class RecursiveStack<E>  implements Iterable<E> {
      */
     public E top() {
         // TODO
-         return null;
+        if (this.e == null) {
+            throw new EmptyStackException();
+        }
+        return this.e;
     }
 
     /**
@@ -67,7 +71,10 @@ public class RecursiveStack<E>  implements Iterable<E> {
      */
     public RecursiveStack<E> removeTop() {
         // TODO
-         return null;
+        if (this.e == null) {
+            throw new EmptyStackException();
+        }
+        return this.next;
     }
 
     /**
@@ -77,7 +84,8 @@ public class RecursiveStack<E>  implements Iterable<E> {
      */
     public int size() {
         // TODO
-         return -1;
+        if (this.e == null) return 0;
+        else return 1 + this.next.size();
     }
 
     /**
@@ -88,7 +96,11 @@ public class RecursiveStack<E>  implements Iterable<E> {
      */
     public RecursiveStack<E> reverse() {
         // TODO
-         return null;
+        RecursiveStack<E> reversed = new RecursiveStack<>();
+        for (E e : this) {
+            reversed = reversed.add(e);
+        }
+        return reversed;
     }
 
     /**
@@ -100,9 +112,23 @@ public class RecursiveStack<E>  implements Iterable<E> {
     @Override
     public Iterator<E> iterator() {
         // TODO: think about implementing an inner class
-         return null;
+         return new StackIterator();
     }
 
+    private class StackIterator implements Iterator<E> {
+        RecursiveStack<E> dummy = RecursiveStack.this;
 
+        @Override
+        public boolean hasNext() {
+            return dummy.e != null;
+        }
+
+        @Override
+        public E next() {
+            E elt = dummy.top();
+            dummy = dummy.removeTop();
+            return elt;
+        }
+    }
 
 }

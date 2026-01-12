@@ -51,6 +51,8 @@ public class GlobalWarming {
 
         // Hint 1: You will need to store the past records in some data structure.
         // Hint 2: You will need to store the observers in some data structure.
+        Map<String, Float> records = new HashMap<>();
+        List<RecordObserver> observers = new ArrayList<>();
 
 
         /**
@@ -61,6 +63,9 @@ public class GlobalWarming {
          */
         void addObserver(RecordObserver observer) {
             // TODO
+            if (!observers.contains(observer)) {
+                observers.add(observer);
+            }
         }
 
         /**
@@ -73,6 +78,20 @@ public class GlobalWarming {
          */
         public void temperatureMeasured(String place, float temperature) {
             // TODO
+            boolean needToBeNotified = true;
+
+            // 1 - Update the temperatures for the place on Earth
+            if ( records.getOrDefault(place, Float.NEGATIVE_INFINITY) >= temperature ) {
+                needToBeNotified = false;
+            }
+            records.put(place, Math.max(records.getOrDefault(place, Float.NEGATIVE_INFINITY), temperature));
+
+            // 2 - Notify All the observers
+            if (needToBeNotified) {
+                for (RecordObserver observer : observers) {
+                    observer.signalNewRecord(place, temperature);
+                }
+            }
         }
     }
 }

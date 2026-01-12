@@ -22,12 +22,16 @@ import java.util.*;
 public class BestTimeTracker implements Iterable<String> {
 
     // TODO: add instance variables of your choice
+    private Map<String, Double> bestTimes;
+    private int counter;
 
     /**
      * Constructs an empty BestTimeTracker.
      */
     public BestTimeTracker() {
         // TODO: implement the constructor
+        bestTimes = new HashMap<>();
+        counter = 0;
     }
 
     /**
@@ -40,6 +44,8 @@ public class BestTimeTracker implements Iterable<String> {
      */
     public void addTime(String participant, double time) {
         // TODO
+        bestTimes.put(participant, Math.min(time, bestTimes.getOrDefault(participant, Double.MAX_VALUE)));
+        counter++;
     }
 
     /**
@@ -49,7 +55,7 @@ public class BestTimeTracker implements Iterable<String> {
      * @return the best time recorded for the participant, or null if the participant has no recorded time
      */
     public Double getBestTime(String participant) {
-         return -1.0;  // TODO
+         return bestTimes.get(participant);  // TODO
     }
 
     /**
@@ -66,7 +72,34 @@ public class BestTimeTracker implements Iterable<String> {
      */
     @Override
     public Iterator<String> iterator() {
-         return null;  // TODO
+        List<String> participants = new ArrayList<>();
+        for (String name : bestTimes.keySet()) {
+            participants.add(name);
+        }
+        Collections.sort(participants, (name1, name2) -> Double.compare(bestTimes.get(name1), bestTimes.get(name2)));
+        return new Iterator<String>() {
+            int i = 0;
+            int expectedCounter = BestTimeTracker.this.counter;
+
+            @Override
+            public boolean hasNext() {
+                if (expectedCounter != BestTimeTracker.this.counter) {
+                    throw new ConcurrentModificationException();
+                }
+                return i < participants.size();
+            }
+
+            @Override
+            public String next() {
+                if (expectedCounter != BestTimeTracker.this.counter) {
+                    throw new ConcurrentModificationException();
+                }
+                if (i == participants.size()) {
+                    throw new IllegalStateException("We have already reached the end");
+                }
+                return participants.get(i++);
+            }
+        };  // TODO
     }
 
     public static void main(String[] args) {
