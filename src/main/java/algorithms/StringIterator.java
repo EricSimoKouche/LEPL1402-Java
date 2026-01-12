@@ -25,7 +25,7 @@ public class StringIterator {
      */
     public static IterableString makeIterableString(String s) {
         // TODO return an instance of your class that implements the interface
-         return null;
+         return new StringIterable(s);
     }
 
     /**
@@ -35,6 +35,33 @@ public class StringIterator {
     public interface IterableString extends Iterable<Character> {}
 
     // TODO implement the interface IterableString as an (inner) class
+    public static class StringIterable implements IterableString {
+
+        private String s;
+
+        public StringIterable (String s) {
+            this.s = s;
+        }
+
+        @Override
+        public Iterator<Character> iterator() {
+            return new Iterator<Character>() {
+                int i = 0;
+
+                @Override
+                public boolean hasNext() {
+                    return i < StringIterable.this.s.length();
+                }
+
+                @Override
+                public Character next() {
+                    char c = StringIterable.this.s.charAt(i);
+                    i++;
+                    return c;
+                }
+            };
+        }
+    }
 
 
 }

@@ -30,6 +30,8 @@ public class DotProductIterator {
      */
     public static class VectorIterator implements Iterator<Double> {
 
+        private double[] values;
+        private int index;
         /**
          * Constructeur de l'iterateur.
          * @param values Le tableau de valeurs sur lequel iterer.
@@ -41,6 +43,8 @@ public class DotProductIterator {
          */
         VectorIterator(double[] values) {
             // TODO
+            this.values = values;
+            this.index = 0;
         }
 
         /**
@@ -56,7 +60,7 @@ public class DotProductIterator {
         @Override
         public boolean hasNext() {
             // TODO
-             return false;
+             return index < values.length;
         }
 
         /**
@@ -78,7 +82,8 @@ public class DotProductIterator {
         @Override
         public Double next() {
             // TODO
-             return null;
+            if (index == values.length) throw new IllegalStateException("We have already reached the end of the vector");
+            return values[index++];
         }
     }
 
@@ -106,6 +111,14 @@ public class DotProductIterator {
     public static double computeDotProduct(Iterator<Double> a,
                                            Iterator<Double> b) {
         // TODO
-         return 0;
+        double res = 0.0;
+        while (a.hasNext() && b.hasNext()) {
+            res += a.next() * b.next();
+        }
+
+        if (a.hasNext() || b.hasNext()) {
+            throw new IllegalArgumentException("The iterators don't contain the same number of elements");
+        }
+        return res;
     }
 }

@@ -46,9 +46,39 @@ public class QRcode {
     @Override
     public boolean equals(Object o) {
         // TODO
-         return false;
+        if (!(o instanceof QRcode)) return false;
+
+        boolean[][] version1 = rotateBy90(data);
+        boolean[][] version2 = rotateBy180(data);
+        boolean[][] version3 = rotateBy270(data);
+
+        boolean[][] provided =  ((QRcode) o).data;
+
+        if (Arrays.deepEquals(data, provided) ||
+                Arrays.deepEquals(version1, provided) ||
+                Arrays.deepEquals(version2, provided) ||
+                Arrays.deepEquals(version3, provided)) {
+            return true;
+        }
+        return false;
     }
 
+    private boolean[][] rotateBy90 (boolean[][] data) {
+        boolean[][] rotated = new boolean[data.length][data[0].length];
+        int n = data.length;
 
+        for (int i = 0; i < n; i++) for (int j = 0; j < n; j++) {
+            rotated[i][j] = data[n-j-1][i];
+        }
+        return rotated;
+    }
+
+    private boolean[][] rotateBy180 (boolean[][] data) {
+        return rotateBy90(rotateBy90(data));
+    }
+
+    private boolean[][] rotateBy270 (boolean[][] data) {
+        return rotateBy90(rotateBy90(rotateBy90(data)));
+    }
 
 }

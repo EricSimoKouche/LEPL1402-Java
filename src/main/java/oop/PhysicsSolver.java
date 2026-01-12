@@ -1,5 +1,7 @@
 package oop;
 
+import java.util.Optional;
+
 public class PhysicsSolver {
 
     /**
@@ -14,13 +16,15 @@ public class PhysicsSolver {
      **/
     public static class Slot {
 
+        private double value;
+        private boolean containsValue;
         /**
          * The constructor must initialize the slot so that it
          * contains no value.
          **/
         Slot() {
+            containsValue = false;
         }
-
         /**
          * Checks whether two floating-point numbers are equal, given
          * a small tolerance.
@@ -39,7 +43,7 @@ public class PhysicsSolver {
          * @return <code>true</code> iff. the slot contains a value.
          **/
         public boolean hasValue() {
-             return false;
+             return containsValue;
         }
 
         /**
@@ -48,7 +52,11 @@ public class PhysicsSolver {
          * @throws RuntimeException if the slot doesn't contain a value.
          **/
         public double getValue() {
-             throw new RuntimeException("slot without a value");
+            if (containsValue) {
+                return value;
+            } else {
+                throw new RuntimeException("Empty Slot");
+            }
         }
 
         /**
@@ -64,7 +72,18 @@ public class PhysicsSolver {
          * value in the slot.
          **/
         public boolean setValue(double value) {
-             return false;
+            if (containsValue) {
+                if (this.value != value) {
+                    throw new RuntimeException("Already contains a different value");
+                }
+            } else {
+                this.value = value;
+                containsValue = true;
+                return true;
+            }
+            // if the slot already contains the same value
+            return false;
+
         }
 
         /**
@@ -72,6 +91,7 @@ public class PhysicsSolver {
          * method, the slot doesn't contain a value.
          **/
         public void clearValue() {
+            containsValue = false;
         }
     }
 
@@ -170,11 +190,24 @@ public class PhysicsSolver {
 
         @Override
         public boolean update() {
-			 return false;
+
+            if (factor1_.hasValue() && factor2_.hasValue() && !product_.hasValue()) {
+                product_.setValue(factor1_.getValue() * factor2_.getValue());
+            } else if (factor1_.hasValue() && !factor2_.hasValue() && product_.hasValue()) {
+                factor2_.setValue(product_.getValue() / factor1_.getValue());
+            } else if (!factor1_.hasValue() && factor2_.hasValue() && product_.hasValue()) {
+                factor1_.setValue(product_.getValue() / factor2_.getValue());
+            } else {
+                return false;
+            }
+            return true;
         }
 
         @Override
         public void clearValues() {
+            factor1_.clearValue();
+            factor2_.clearValue();
+            product_.clearValue();
         }
     }
 
@@ -231,11 +264,21 @@ public class PhysicsSolver {
 
         @Override
         public boolean update() {
-			 return false;
+
+            if (!square_.hasValue() && number_.hasValue()) {
+                square_.setValue(number_.getValue() * number_.getValue());
+            } else if (square_.hasValue() && !number_.hasValue()) {
+                number_.setValue(Math.sqrt(square_.getValue()));
+            } else {
+                return false ;
+            }
+            return true;
         }
 
         @Override
         public void clearValues() {
+            square_.clearValue();
+            number_.clearValue();
         }
     }
 
