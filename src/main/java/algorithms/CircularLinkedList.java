@@ -1,4 +1,5 @@
 package algorithms;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 /**
@@ -56,10 +57,62 @@ public class CircularLinkedList {
     }
     
     public void enqueue(int value) {
+
+        Node node = new Node(value);
+
+        if (isEmpty()) {
+            node.setNext(node);
+            first = Optional.of(node);
+            last = Optional.of(node);
+        } else {
+            node.setNext(first.get());
+            last.get().setNext(node);
+            last = Optional.of(node);
+        }
+
+        size++;
         
     }
     
     public int remove(int index) {
-         return -1;
+
+        if (index < 0 || index >= size) {
+            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
+        }
+
+        if (isEmpty()) {
+            throw new NoSuchElementException("List is empty");
+        }
+
+        int removed;
+
+        if (size == 1) {
+            removed = first.get().value;
+            first = Optional.empty();
+            last = Optional.empty();
+        } else if (index == 0) {
+            removed = first.get().value;
+            Node nextNode = first.get().next.get();
+            last.get().setNext(nextNode);
+            first = Optional.of(nextNode);
+        } else {
+            Node prev = first.get();
+
+            for (int i = 1; i < index - 1; i++) {
+                prev = prev.next.get();
+            }
+
+            Node current = prev.next.get();
+            removed = current.value;
+
+            prev.setNext(current.next.get());
+
+            if (index == size - 1) {
+                last = Optional.of(prev);
+            }
+        }
+
+        size--;
+        return removed;
     }
 }
